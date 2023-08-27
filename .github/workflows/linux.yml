@@ -1,3 +1,5 @@
+name: Build palera1n
+
 build-Linux:
     strategy:
       matrix:
