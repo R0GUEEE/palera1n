@@ -757,6 +757,13 @@ jobs:
         id: branch-name
         uses: tj-actions/branch-names@v7
 
+      - name: Upload Artifact
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: palera1n-${{ env.CHECKRA1N_NAME }}
+          path: palera1n-${{ env.CHECKRA1N_NAME }}
+
   finish-build:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'pull_request' }}
