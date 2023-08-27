@@ -731,7 +731,14 @@ jobs:
           mv palera1n.debug ready/palera1n-${{ env.CHECKRA1N_NAME }}.debug
           mv src/palera1n ready/palera1n-${{ env.CHECKRA1N_NAME }}
           tar -zcf ready/dep_root_${{ matrix.triple }}.tgz dep_root
-
+     
+      - name: Upload Artifact
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: palera1n-${{ env.CHECKRA1N_NAME }}
+          path: palera1n-${{ env.CHECKRA1N_NAME }}
+      
       - name: Build debs
         run: |
           version=$(git describe --dirty --tags --abbrev=7 | sed 's|^v||' | sed 's|-beta|~beta|')
@@ -761,8 +768,8 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         uses: actions/upload-artifact@v3
         with:
-          name: palera1n-${{ env.CHECKRA1N_NAME }}
-          path: palera1n-${{ env.CHECKRA1N_NAME }}
+          name: palera1n_${{ env.ARCH_NAME }}.deb
+          path: palera1n_${{ env.ARCH_NAME }}.deb
 
   finish-build:
     runs-on: ubuntu-latest
