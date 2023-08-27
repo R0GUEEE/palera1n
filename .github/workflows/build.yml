@@ -1,5 +1,3 @@
-
-
 name: Build palera1n
 
 on:
@@ -34,13 +32,11 @@ jobs:
         run: |
           sudo apt-get -y update
           sudo apt-get -y install mandoc make
-
       - name: Build Documentation
         run: |
           make -j$(nproc) docs
           mkdir ready
           cp docs/*.html docs/mandoc.css docs/palera1n.1 ready
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v7
@@ -83,11 +79,9 @@ jobs:
           sudo rm -rf /usr/local/Frameworks/Python*
           curl -LO https://github.com/ProcursusTeam/ldid/releases/download/v2.1.5-procursus7/ldid_macosx_x86_64
           sudo install -m755 ldid_macosx_x86_64 /usr/local/bin/ldid
-
       - name: Download dependencies (embedded binaries)
         run: |
           echo "SDK=$(xcrun -sdk ${{ matrix.os }} --show-sdk-path)" >> $GITHUB_ENV
-
       - name: Download dependencies (source code)
         run: |
           curl -LOOOOOO \
@@ -96,7 +90,6 @@ jobs:
             https://www.jedsoft.org/releases/slang/slang-${{ env.SLANG_VERSION }}.tar.bz2 \
             https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
             https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-
           tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
           tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
           tar -xjf slang-${{ env.SLANG_VERSION }}.tar.bz2
@@ -107,11 +100,9 @@ jobs:
           git clone --depth=1 https://github.com/libimobiledevice/libirecovery
           git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
           git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
-
       - name: Select correct Xcode
         run: |
           sudo xcode-select -s /Applications/Xcode_14.2.app
-
       - name: Setup environment
         run: |
           mkdir sysroot
@@ -132,14 +123,12 @@ jobs:
           echo "LDFLAGS_FOR_BUILD=-Wl,-dead_strip" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
-
       - name: Prepare iPhoneOS environment
         if: matrix.os == 'iphoneos'
         run: |
           echo "FAKE_PLATFORM=2" >> $GITHUB_ENV
           echo "FAKE_SDK=7.0" >> $GITHUB_ENV
           echo "FAKE_MINOS=7.0" >> $GITHUB_ENV
-
       - name: Prepare headers
         if: matrix.os != 'macosx'
         run: |
@@ -171,7 +160,6 @@ jobs:
           gsed -E s/'__IOS_PROHIBITED|__TVOS_PROHIBITED|__WATCHOS_PROHIBITED'//g < ${TARGET_SYSROOT}/usr/include/signal.h > sysroot/usr/local/include/signal.h
           gsed -E /'__API_UNAVAILABLE'/d < ${TARGET_SYSROOT}/usr/include/pthread.h > sysroot/usr/local/include/pthread.h
           gsed -i -E s/'__API_UNAVAILABLE\(.*\)'// sysroot/usr/local/include/IOKit/IOKitLib.h
-
       - name: Build Mbed TLS
         run: |
           cd mbedtls-${{ env.MBEDTLS_VERSION }}
@@ -195,7 +183,6 @@ jobs:
              SDKROOT="${{ env.SDK }}"
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build readline
         run: |
           cd readline-${{ env.READLINE_VERSION }}
@@ -203,7 +190,6 @@ jobs:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build S-Lang
         run: |
           cd slang-${{ env.SLANG_VERSION }}
@@ -218,7 +204,6 @@ jobs:
           gmake -j$(sysctl -n hw.ncpu) static
           gmake -j$(sysctl -n hw.ncpu) install-static DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build popt
         run: |
           cd popt-popt-${{ env.POPT_VERSION }}-release
@@ -232,7 +217,6 @@ jobs:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build newt
         run: |
           cd newt-${{ env.NEWT_VERSION }}
@@ -248,7 +232,6 @@ jobs:
           install -m644 libnewt.a ${{ env.DESTDIR }}/usr/local/lib
           install -m644 newt.h ${{ env.DESTDIR }}/usr/local/include
           cd ..
-
       - name: Build libplist
         run: |
           cd libplist
@@ -257,7 +240,6 @@ jobs:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build libimobiledevice-glue
         run: |
           cd libimobiledevice-glue
@@ -266,7 +248,6 @@ jobs:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build libirecovery
         run: |
           sudo cp -a sysroot/usr/local/* /usr/local
@@ -281,7 +262,6 @@ jobs:
           make -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           install -m644 src/.libs/libirecovery-1.0.a ${{ env.DESTDIR }}${{ env.PREFIX }}/lib
           cd ..
-
       - name: Build libusbmuxd
         run: |
           cd libusbmuxd
@@ -290,7 +270,6 @@ jobs:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build libimobiledevice
         run: |
           cd libimobiledevice
@@ -300,7 +279,6 @@ jobs:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build palera1n
         run: |
           cp -a sysroot/${{ env.PREFIX }}/{include,lib} dep_root
@@ -318,7 +296,6 @@ jobs:
           fi
           mkdir -p ready
           tar -zcf ready/dep_root-${{ matrix.os }}-${{ matrix.arch }}.tgz dep_root
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v7
@@ -338,7 +315,8 @@ jobs:
           name: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
           path: palera1n-${{ matrix.os }}-${{ matrix.arch }}.dSYM
           retention-days: 1
-    darwin-dist:
+      
+  darwin-dist:
     if: ${{ github.event_name != 'pull_request' }}
     runs-on: macos-latest
     needs: build-darwin
@@ -372,76 +350,63 @@ jobs:
           cp ./palera1n-iphoneos-arm64/palera1n-iphoneos-arm64 ready/palera1n-ios
           zip -r9 ready/palera1n-ios.dSYM.zip palera1n-iphoneos-arm64.dSYM
           zip -r9 ready/palera1n-macos.dSYM.zip palera1n-macos.dSYM
-
       - name: Build debs
         run: |
           make -j$(sysctl -n hw.ncpu) docs
           version=$(git describe --dirty --tags --abbrev=7 | sed 's|^v||' | sed 's|-beta|~beta|')
-
           # Darwin x86_64
           mkdir -p stage/DEBIAN
           mkdir -p stage/opt/procursus/bin
           mkdir -p stage/opt/procursus/usr/share/man/man1
           cp packaging/control.macosx stage/DEBIAN/control
-
           gsed 's|@DEB_ARCH@|darwin-amd64|g' -i stage/DEBIAN/control
           gsed "s|@DEB_VERSION@|$version|g" -i stage/DEBIAN/control
           
           ginstall -Dm644 ready/palera1n-macos-x86_64 stage/opt/procursus/bin/palera1n
           ginstall -Dm644 docs/palera1n.1 stage/opt/procursus/usr/share/man/man1/palera1n.1
           chmod +x stage/opt/procursus/bin/palera1n
-
           dpkg-deb -Zzstd -b stage palera1n_darwin-amd64.deb
           mv palera1n*.deb ready/
           rm -rf stage
-
           # Darwin arm64
           mkdir -p stage/DEBIAN
           mkdir -p stage/opt/procursus/bin
           mkdir -p stage/opt/procursus/usr/share/man/man1
           cp packaging/control.macosx stage/DEBIAN/control
-
           gsed 's|@DEB_ARCH@|darwin-arm64|g' -i stage/DEBIAN/control
           gsed "s|@DEB_VERSION@|$version|g" -i stage/DEBIAN/control
           
           ginstall -Dm644 ready/palera1n-macos-arm64 stage/opt/procursus/bin/palera1n
           ginstall -Dm644 docs/palera1n.1 stage/opt/procursus/usr/share/man/man1/palera1n.1
           chmod +x stage/opt/procursus/bin/palera1n
-
           dpkg-deb -Zzstd -b stage palera1n_darwin-arm64.deb
           mv palera1n*.deb ready/
           rm -rf stage
-
           # iPhoneOS
           mkdir -p stage/DEBIAN
           mkdir -p stage/usr/bin
           mkdir -p stage/usr/share/man/man1
           cp packaging/control stage/DEBIAN/control
-
           gsed 's|@DEB_ARCH@|iphoneos-arm|g' -i stage/DEBIAN/control
           gsed "s|@DEB_VERSION@|$version|g" -i stage/DEBIAN/control
           
           ginstall -Dm644 ready/palera1n-ios stage/usr/bin/palera1n
           ginstall -Dm644 docs/palera1n.1 stage/usr/share/man/man1/palera1n.1
           chmod +x stage/usr/bin/palera1n
-
           dpkg-deb -Zzstd -b stage palera1n_iphoneos-arm.deb
           mv palera1n*.deb ready/
           rm -rf stage
-
           # iPhoneOS (rootless)
           mkdir -p stage/DEBIAN
           mkdir -p stage/var/jb/usr/bin
           mkdir -p stage/var/jb/usr/share/man/man1
           cp packaging/control stage/DEBIAN/control
-
           gsed 's|@DEB_ARCH@|iphoneos-arm64|g' -i stage/DEBIAN/control
           gsed "s|@DEB_VERSION@|$version|g" -i stage/DEBIAN/control
           
           ginstall -Dm644 ready/palera1n-ios stage/var/jb/usr/bin/palera1n
           ginstall -Dm644 docs/palera1n.1 stage/var/jb/usr/share/man/man1/palera1n.1
           chmod +x stage/var/jb/usr/bin/palera1n
-
           dpkg-deb -Zzstd -b stage palera1n_iphoneos-arm64.deb
           mv palera1n*.deb ready/
           rm -rf stage
@@ -459,8 +424,7 @@ jobs:
         id: branch-name
         uses: tj-actions/branch-names@v7
 
-
-build-Linux:
+  build-Linux:
     strategy:
       matrix:
         triple:
@@ -489,12 +453,10 @@ build-Linux:
           sudo apt-get remove -y libssl-dev libreadline-dev
           sudo apt-get install -y pkg-config autoconf automake autopoint mandoc
           sudo pip3 install jsonschema jinja2
-
       - name: Download toolchain checksum
         run: |
           curl -LO https://musl.cc/SHA512SUMS
           echo "TOOLCHAIN_CHECKSUM="$(grep ${{ matrix.triple }}-cross.tgz SHA512SUMS | cut -d' ' -f1) >> $GITHUB_ENV
-
       - name: Download toolchain (cached)
         id: toolchain_cache
         uses: actions/cache@v3
@@ -506,7 +468,6 @@ build-Linux:
         if: steps.toolchain_cache.outputs.cache-hit != 'true'
         run: |
           curl -LO https://musl.cc/${{ matrix.triple }}-cross.tgz
-
       - name: Setup environment
         run: |
           tar -xf ${{ matrix.triple }}-cross.tgz
@@ -541,7 +502,6 @@ build-Linux:
           echo "CROSS_COMPILE=${{ matrix.triple }}-" >> $GITHUB_ENV
           mkdir -p $(pwd)/sysroot/usr/local/lib
           ln -sf $(pwd)/sysroot/usr/local/lib{,64}
-
       - name: Download dependencies (source code)
         run: |
           curl -LOOOOOOO \
@@ -552,7 +512,6 @@ build-Linux:
             https://releases.pagure.org/newt/newt-${{ env.NEWT_VERSION }}.tar.gz \
             https://github.com/telmich/gpm/archive/refs/tags/${{ env.GPM_VERSION }}.tar.gz \
             https://github.com/rpm-software-management/popt/archive/refs/tags/popt-${{ env.POPT_VERSION }}-release.tar.gz
-
           tar -xf v${{ env.MBEDTLS_VERSION }}.tar.gz
           tar -xjf libusb-${{ env.LIBUSB_VERSION }}.tar.bz2
           tar -xf readline-${{ env.READLINE_VERSION }}.tar.gz
@@ -565,7 +524,6 @@ build-Linux:
           git clone --depth=1 https://github.com/libimobiledevice/libirecovery
           git clone --depth=1 https://github.com/libimobiledevice/libusbmuxd
           git clone --depth=1 https://github.com/libimobiledevice/libimobiledevice
-
       - name: Build Mbed TLS
         run: |
           cd mbedtls-${{ env.MBEDTLS_VERSION }}
@@ -588,7 +546,6 @@ build-Linux:
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build libusb
         run: |
           cd libusb-${{ env.LIBUSB_VERSION }}
@@ -596,7 +553,6 @@ build-Linux:
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build readline
         run: |
           cd readline-${{ env.READLINE_VERSION }}
@@ -604,7 +560,6 @@ build-Linux:
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build S-Lang
         run: |
           cd slang-${{ env.SLANG_VERSION }}
@@ -619,7 +574,6 @@ build-Linux:
           gmake -j$(sysctl -n hw.ncpu) static
           gmake -j$(sysctl -n hw.ncpu) install-static DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build GPM
         run: |
           cd gpm-${{ env.GPM_VERSION }}
@@ -630,7 +584,6 @@ build-Linux:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build popt
         run: |
           cd popt-popt-${{ env.POPT_VERSION }}-release
@@ -644,7 +597,6 @@ build-Linux:
           gmake -j$(sysctl -n hw.ncpu)
           gmake -j$(sysctl -n hw.ncpu) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build newt
         run: |
           cd newt-${{ env.NEWT_VERSION }}
@@ -661,7 +613,6 @@ build-Linux:
           install -m644 libnewt.a ${{ env.DESTDIR }}/usr/local/lib
           install -m644 newt.h ${{ env.DESTDIR }}/usr/local/include
           cd ..
-
       - name: Build libplist
         run: |
           cd libplist
@@ -670,7 +621,6 @@ build-Linux:
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build libimobiledevice-glue
         run: |
           cd libimobiledevice-glue
@@ -679,7 +629,6 @@ build-Linux:
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build libirecovery (sorta)
         run: |
           sudo mv /usr/local /usr/local.bak
@@ -692,7 +641,6 @@ build-Linux:
           make -ij$(nproc) install DESTDIR=${{ env.DESTDIR }}
           install -m644 src/.libs/libirecovery-1.0.a ${{ env.DESTDIR }}${{ env.PREFIX }}/lib
           cd ..
-
       - name: Build libusbmuxd
         run: |
           cd libusbmuxd
@@ -701,7 +649,6 @@ build-Linux:
           make -j$(nproc)
           make -j$(nproc) install DESTDIR=${{ env.DESTDIR }}
           cd ..
-
       - name: Build libimobiledevice
         run: |
           cd libimobiledevice
@@ -713,14 +660,12 @@ build-Linux:
           cd ..
           sudo rm /usr/local
           sudo mv /usr/local.bak /usr/local
-
       - name: Build palera1n
         run: |
           cp -a sysroot/${{ env.PREFIX }}/{include,lib} dep_root
           find dep_root -name '*.so' -delete
           find dep_root -name '*.la' -delete
           CC="${{ matrix.triple }}-gcc" make -j$(nproc)
-
       - name: Seperate debug symbols
         run: |
           ${{ matrix.triple }}-objcopy --only-keep-debug src/palera1n palera1n.debug
@@ -734,7 +679,6 @@ build-Linux:
           mv palera1n.debug ready/palera1n-${{ env.CHECKRA1N_NAME }}.debug
           mv src/palera1n ready/palera1n-${{ env.CHECKRA1N_NAME }}
           tar -zcf ready/dep_root_${{ matrix.triple }}.tgz dep_root
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
@@ -744,24 +688,20 @@ build-Linux:
       - name: Build debs
         run: |
           version=$(git describe --dirty --tags --abbrev=7 | sed 's|^v||' | sed 's|-beta|~beta|')
-
           make -j$(nproc) docs
           mkdir -p stage/DEBIAN
           mkdir -p stage/usr/bin
           mkdir -p stage/usr/share/man/man1
           cp packaging/control stage/DEBIAN/control
-
           sed 's|@DEB_ARCH@|${{ env.ARCH_NAME }}|g' -i stage/DEBIAN/control
           sed "s|@DEB_VERSION@|$version|g" -i stage/DEBIAN/control
           
           install -Dm644 ready/palera1n-${{ env.CHECKRA1N_NAME }} stage/usr/bin/palera1n
           install -Dm644 docs/palera1n.1 stage/usr/share/man/man1/palera1n.1
           chmod +x stage/usr/bin/palera1n
-
           dpkg-deb -b stage palera1n_${{ env.ARCH_NAME }}.deb
           mv palera1n*.deb ready/
           rm -rf stage
-
       - name: Get branch name
         id: branch-name
         uses: tj-actions/branch-names@v7
@@ -782,5 +722,4 @@ build-Linux:
         uses: actions/download-artifact@v3
         with:
           name: build-tag
-
 
